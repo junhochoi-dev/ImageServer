@@ -5,23 +5,31 @@ import java.time.LocalDateTime;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.Lob;
+import lombok.*;
 
-@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Getter
+@Setter
 public class Image {
 	@Id
 	@GeneratedValue
 	private Long id;
 
-	private String url;
+	private String name;
 
-	private LocalDateTime createdTime;
+	private String type;
 
+	@Lob
+	private byte[] data;
+
+	@Builder
+	public Image(String name, String type, byte[] data){
+		this.name = name;
+		this.type = type;
+		this.data = data;
+	}
 }
