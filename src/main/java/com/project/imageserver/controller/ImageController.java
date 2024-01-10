@@ -35,6 +35,14 @@ public class ImageController {
 		return ResponseEntity.status(HttpStatus.OK).body("[CONTROLLER][UPLOAD]");
     }
 
+	// @GetMapping("/download")
+	// public ResponseEntity<?> download() throws IOException {
+	// 	String uploadImage = imageService.upload(file);
+	//
+	// 	return ResponseEntity.status(HttpStatus.OK).body("[CONTROLLER][UPLOAD]");
+	// }
+
+
 //	// 다운로드
 //    @GetMapping("/{fileName}")
 //    public ResponseEntity<?> downloadImage(@PathVariable("fileName") String fileName) {

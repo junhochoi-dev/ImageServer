@@ -6,6 +6,7 @@ import lombok.Data;
 
 @Data
 public class ImageDto {
-	private MultipartFile file;
-	private String caption;
+	private String path;
+	private String name;
+	private String extension;
 }

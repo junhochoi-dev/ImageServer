@@ -1,4 +1,4 @@
-package com.project.imageserver;
+package com.project.imageserver.domain;
 
 import java.time.LocalDateTime;
 
@@ -19,17 +19,18 @@ public class Image {
 	@GeneratedValue
 	private Long id;
 
+	private String path;
+
 	private String name;
 
-	private String type;
+	private String extenstion;
 
-	@Lob
-	private byte[] data;
+	//private String extension;
 
 	@Builder
-	public Image(String name, String type, byte[] data){
+	public Image(String path, String name, String extenstion){
+		this.path = path;
 		this.name = name;
-		this.type = type;
-		this.data = data;
+		this.extenstion = extenstion;
 	}
 }
