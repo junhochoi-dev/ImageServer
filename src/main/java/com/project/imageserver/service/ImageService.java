@@ -20,8 +20,10 @@ public class ImageService {
 
     public String upload(MultipartFile multipartFile) throws IOException{
 		System.out.println("[SERVICE][UPLOAD]");
-		String PATH = "C:/Users/SSAFY/Desktop";
+
+		String PATH = "C:/Users/SSAFY/Desktop/";
 		multipartFile.transferTo(new File(PATH + multipartFile.getOriginalFilename()));
+
 		Image image = storageRepository.save(
 				Image.builder()
 						.name(multipartFile.getOriginalFilename())
