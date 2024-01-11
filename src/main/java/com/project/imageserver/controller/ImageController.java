@@ -20,19 +20,22 @@ import lombok.RequiredArgsConstructor;
 @RestController
 public class ImageController {
 	private final ImageService imageService;
+	@PostMapping("/upload/local")
+    public ResponseEntity<?> uploadLocal(@RequestParam("image") MultipartFile file) throws IOException {
+		System.out.println("[CONTROLLER][UPLOAD][LOCAL]");
 
-	@GetMapping("/test")
-	public ResponseEntity<?> test(){
-		System.out.println("[CONTROLLER][TEST]");
-		return ResponseEntity.status(HttpStatus.OK).body("[CONTROLLER][TEST]");
-	}
-	@PostMapping("/upload")
-    public ResponseEntity<?> upload(@RequestParam("image") MultipartFile file) throws IOException {
-		System.out.println("[CONTROLLER][UPLOAD]");
+        imageService.upload(file);
 
-        String uploadImage = imageService.upload(file);
+		return ResponseEntity.status(HttpStatus.OK).body("[CONTROLLER][UPLOAD][LOCAL]");
+    }
 
-		return ResponseEntity.status(HttpStatus.OK).body("[CONTROLLER][UPLOAD]");
+	@PostMapping("/upload/aws")
+    public ResponseEntity<?> uploadAws(@RequestParam("image") MultipartFile file) throws IOException {
+		System.out.println("[CONTROLLER][UPLOAD][AWS]");
+
+        imageService.uploadFileToS3(file, "static/team-image");
+
+		return ResponseEntity.status(HttpStatus.OK).body("[CONTROLLER][UPLOAD][AWS]");
     }
 
 	// @GetMapping("/download")
