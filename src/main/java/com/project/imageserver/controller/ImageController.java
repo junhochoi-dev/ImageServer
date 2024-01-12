@@ -2,6 +2,7 @@ package com.project.imageserver.controller;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.List;
 import java.util.Objects;
 
@@ -16,34 +17,49 @@ import com.project.imageserver.service.ImageService;
 
 import lombok.RequiredArgsConstructor;
 
+@CrossOrigin("*")
 @RequiredArgsConstructor
 @RestController
 public class ImageController {
-	private final ImageService imageService;
-	@PostMapping("/upload/local")
+    private final ImageService imageService;
+
+    @PostMapping("/upload/local")
     public ResponseEntity<?> uploadLocal(@RequestParam("image") MultipartFile file) throws IOException {
-		System.out.println("[CONTROLLER][UPLOAD][LOCAL]");
+        System.out.println("[CONTROLLER][UPLOAD][LOCAL]");
 
-        imageService.upload(file);
+        imageService.uploadLocal(file);
 
-		return ResponseEntity.status(HttpStatus.OK).body("[CONTROLLER][UPLOAD][LOCAL]");
+        return ResponseEntity.status(HttpStatus.OK).body("[CONTROLLER][UPLOAD][LOCAL]");
     }
 
-	@PostMapping("/upload/aws")
-    public ResponseEntity<?> uploadAws(@RequestParam("image") MultipartFile file) throws IOException {
-		System.out.println("[CONTROLLER][UPLOAD][AWS]");
+    @PostMapping("/upload/aws")
+    public ResponseEntity<?> uploadAWS(@RequestParam("image") MultipartFile file) throws IOException {
+        System.out.println("[CONTROLLER][UPLOAD][AWS]");
 
-        imageService.uploadFileToS3(file, "static/team-image");
+        imageService.uploadAWS(file, "static/team-image");
 
-		return ResponseEntity.status(HttpStatus.OK).body("[CONTROLLER][UPLOAD][AWS]");
+        return ResponseEntity.status(HttpStatus.OK).body("[CONTROLLER][UPLOAD][AWS]");
     }
 
-	// @GetMapping("/download")
-	// public ResponseEntity<?> download() throws IOException {
-	// 	String uploadImage = imageService.upload(file);
-	//
-	// 	return ResponseEntity.status(HttpStatus.OK).body("[CONTROLLER][UPLOAD]");
-	// }
+    @PostMapping("/download/local")
+    public ResponseEntity<?> uploadLocal() throws IOException {
+        System.out.println("[CONTROLLER][UPLOAD][LOCAL]");
+        return ResponseEntity.status(HttpStatus.OK).body("[CONTROLLER][DOWNLOAD][LOCAL]");
+    }
+    @GetMapping("/download/aws")
+    public ResponseEntity<?> downloadAWS() throws IOException {
+        System.out.println("[CONTROLLER][UPLOAD][AWS]");
+
+        URL url = imageService.downloadAWS();
+        System.out.println(url.getHost() + url.getFile());
+        return ResponseEntity.status(HttpStatus.OK).body("[CONTROLLER][DOWNLOAD][AWS]");
+    }
+    // @GetMapping("/download")
+    // public ResponseEntity<?> download() throws IOException {
+    // 	String uploadImage = imageService.upload(file);
+    //
+    // 	return ResponseEntity.status(HttpStatus.OK).body("[CONTROLLER][UPLOAD]");
+    // }
 
 
 //	// 다운로드

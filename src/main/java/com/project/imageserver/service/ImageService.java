@@ -3,6 +3,7 @@ package com.project.imageserver.service;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 
+import com.project.imageserver.domain.Image;
 import com.project.imageserver.utils.S3Uploader;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Random;
 
 @Service
@@ -46,39 +48,65 @@ public class ImageService {
 		return sb.toString();
 	}
 
-    public String upload(MultipartFile multipartFile) throws IOException{
+    public String uploadLocal(MultipartFile multipartFile) throws IOException{
 		System.out.println("[SERVICE][UPLOAD]");
 
 		String PATH = "C:/Users/SSAFY/Desktop/TESTDB/";
 		String NAME = generateName() + "." + StringUtils.getFilenameExtension(multipartFile.getOriginalFilename());
 
-		//multipartFile.transferTo(new File(PATH + "TEST" + multipartFile.getOriginalFilename()));
+		File folder = new File(PATH);
+		if(!folder.exists()) folder.mkdir();
+
 		multipartFile.transferTo(new File(PATH + NAME));
 
-//		storageRepository.save(
-//			Image
-//				.builder()
-//				.path(PATH)
-//				.name(NAME)
-//				.extenstion(StringUtils.getFilenameExtension(multipartFile.getOriginalFilename()))
-//				.build());
+		storageRepository.save(
+			Image
+				.builder()
+				.path(PATH)
+				.name(NAME)
+				.extenstion(StringUtils.getFilenameExtension(multipartFile.getOriginalFilename()))
+				.build()
+		);
 
 		return PATH + NAME;
 	}
 
-	public ResponseEntity<String> uploadFileToS3(MultipartFile file, String filePath) {
+	public ResponseEntity<String> uploadAWS(MultipartFile file, String filePath) {
         // MultipartFile -> File 로 변환
 		try {
-				String fileName = file.getOriginalFilename();
-				String fileUrl= "https://" + bucket + "/test" +fileName;
-				ObjectMetadata metadata= new ObjectMetadata();
-				metadata.setContentType(file.getContentType());
-				metadata.setContentLength(file.getSize());
-				amazonS3Client.putObject(bucket,fileName,file.getInputStream(),metadata);
+			// 파일명이 키입니다!!!!!!!!!!!!!!
+
+			String folder = "/image/";
+			String fileName = "ABC";
+			//String fileName = "/TEST/" + file.getOriginalFilename();
+			String fileUrl= "https://" + bucket + "/" + filePath + "/test" +fileName;
+
+			System.out.println(fileUrl);
+
+			ObjectMetadata metadata = new ObjectMetadata();
+			metadata.setContentType(file.getContentType());
+			metadata.setContentLength(file.getSize());
+
+			storageRepository.save(
+				Image
+				.builder()
+				.path(fileName)
+				.name(fileUrl)
+				.extenstion(StringUtils.getFilenameExtension(file.getOriginalFilename()))
+				.build()
+			);
+
+			amazonS3Client.putObject(bucket,fileName,file.getInputStream(),metadata);
+
 				return ResponseEntity.ok(fileUrl);
 		} catch (IOException e) {
 			e.printStackTrace();
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 		}
+    }
+
+	public URL downloadAWS(){
+        System.out.println(amazonS3Client.getUrl(bucket, "ABC"));
+		return amazonS3Client.getUrl(bucket, "ABC");
     }
 }
