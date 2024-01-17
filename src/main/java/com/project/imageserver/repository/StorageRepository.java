@@ -4,7 +4,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.project.imageserver.domain.Image;
-import com.project.imageserver.dto.ImageDto;
 
 import java.util.Optional;
 

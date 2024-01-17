@@ -25,12 +25,12 @@ public class Image {
 
 	private String extenstion;
 
-	//private String extension;
+	private ImageType type;
 
-	@Builder
-	public Image(String path, String name, String extenstion){
+	public Image(String path, String name, String extenstion, ImageType type) {
 		this.path = path;
 		this.name = name;
 		this.extenstion = extenstion;
+		this.type = type;
 	}
 }

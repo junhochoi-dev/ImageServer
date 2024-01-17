@@ -1,5 +1,8 @@
 # imageserver
 
+### S3 ADDRESS
+
+- https://testmediaserver.s3.ap-southeast-2.amazonaws.com/
 
 ### reference
 
