@@ -25,12 +25,19 @@ import lombok.RequiredArgsConstructor;
 public class ImageController {
     private final ImageService imageService;
 
-    @PostMapping("/upload/member")
-    public ResponseEntity<?> uploadAWS(
+    @GetMapping("/download/member")
+    public ResponseEntity<?> downloadMember(
             @RequestBody ImageRequestDto imageRequestDto
-    ) throws IOException {
-        imageService.uploadMember(imageRequestDto);
-        return ResponseEntity.status(HttpStatus.OK).body("[CONTROLLER][UPLOAD][AWS]");
+    ) {
+        List<String> list = imageService.downloadMember(imageRequestDto);
+        return ResponseEntity.status(HttpStatus.OK).body(list);
+    }
+    @PostMapping("/upload/member")
+    public ResponseEntity<?> uploadMember(
+            @RequestBody ImageRequestDto imageRequestDto
+    ) throws Exception {
+        List<String> list = imageService.uploadMember(imageRequestDto);
+        return ResponseEntity.status(HttpStatus.OK).body(list);
     }
 
     @GetMapping("/download/aws")
