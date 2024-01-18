@@ -1,17 +1,12 @@
 package com.project.imageserver.controller;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.List;
-import java.util.Objects;
-
-import com.project.imageserver.data.request.ImageRequestDto;
-import com.project.imageserver.data.response.ImageResponseDto;
+import java.util.Map;
+import com.project.imageserver.data.request.SimpleImageRequestDto;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -22,30 +17,36 @@ import lombok.RequiredArgsConstructor;
 @CrossOrigin("*")
 @RequiredArgsConstructor
 @RestController
+@Slf4j
 public class ImageController {
     private final ImageService imageService;
 
-    @GetMapping("/download/member")
+    @PostMapping("/download/member")
     public ResponseEntity<?> downloadMember(
-            @RequestBody ImageRequestDto imageRequestDto
+            @RequestParam("id") Long id
     ) {
-        List<String> list = imageService.downloadMember(imageRequestDto);
-        return ResponseEntity.status(HttpStatus.OK).body(list);
+        SimpleImageRequestDto simpleImageRequestDto = SimpleImageRequestDto.builder().id(id).build();
+
+        String reference = imageService.downloadMember(simpleImageRequestDto);
+
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("sid", reference));
     }
+
     @PostMapping("/upload/member")
     public ResponseEntity<?> uploadMember(
-            @RequestBody ImageRequestDto imageRequestDto
+            @RequestParam("image") MultipartFile file
     ) throws Exception {
-        List<String> list = imageService.uploadMember(imageRequestDto);
-        return ResponseEntity.status(HttpStatus.OK).body(list);
+        SimpleImageRequestDto simpleImageRequestDto = SimpleImageRequestDto.builder().file(file).build();
+        Long id = imageService.uploadMember(simpleImageRequestDto);
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("sid", id));
     }
 
-    @GetMapping("/download/aws")
-    public ResponseEntity<?> downloadAWS() throws IOException {
-        System.out.println("[CONTROLLER][UPLOAD][AWS]");
-
-        URL url = imageService.downloadAWS();
-        System.out.println(url.getHost() + url.getFile());
-        return ResponseEntity.status(HttpStatus.OK).body("[CONTROLLER][DOWNLOAD][AWS]");
+    @PostMapping("/delete")
+    public ResponseEntity<?> delete(
+            @RequestParam("id") Long id
+    ) {
+        SimpleImageRequestDto simpleImageRequestDto = SimpleImageRequestDto.builder().id(id).build();
+        imageService.delete(simpleImageRequestDto);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

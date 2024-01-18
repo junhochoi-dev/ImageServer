@@ -3,7 +3,7 @@ package com.project.imageserver.service;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 
-import com.project.imageserver.data.request.ImageRequestDto;
+import com.project.imageserver.data.request.SimpleImageRequestDto;
 import com.project.imageserver.data.response.ImageResponseDto;
 import com.project.imageserver.domain.Image;
 import com.project.imageserver.utils.S3Uploader;
@@ -22,62 +22,56 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class ImageService {
 	private final StorageRepository storageRepository;
-	private final S3Uploader s3Uploader;
 
 	private final AmazonS3Client amazonS3Client;
 
 	@Value("${cloud.aws.s3.bucket}")
 	private String bucket;
 
-	private String PATH_MEMBER = "/member";
-	private String PATH_FEED = "/feed";
+	private String PATH_ROOT = "storage/";
+	private String PATH_MEMBER = "member/";
+	private String PATH_FEED = "feed/";
 
-	public List<String> uploadMember(ImageRequestDto imageRequestDto) throws Exception {
-		List<String> list = new ArrayList<>();
+	public Long uploadMember(SimpleImageRequestDto simpleImageRequestDto) throws Exception {
+		MultipartFile image = simpleImageRequestDto.getFile();
 
-		for(MultipartFile image : imageRequestDto.getList()){
-			String id = UUID.randomUUID().toString();
-			String extension = StringUtils.getFilenameExtension(image.getOriginalFilename());
+		String reference = UUID.randomUUID().toString();
+		String extension = StringUtils.getFilenameExtension(image.getOriginalFilename());
 
-			String filename = PATH_MEMBER + "/" + id + "." + extension;
+		String filepath = PATH_ROOT + PATH_MEMBER + reference + "." + extension;
 
-			list.add(filename);
+		ObjectMetadata metadata = new ObjectMetadata();
+		metadata.setContentType(image.getContentType());
+		metadata.setContentLength(image.getSize());
 
-			ObjectMetadata metadata = new ObjectMetadata();
-			metadata.setContentType(image.getContentType());
-			metadata.setContentLength(image.getSize());
+		amazonS3Client.putObject(bucket, filepath, image.getInputStream(), metadata);
 
-			amazonS3Client.putObject(bucket, filename, image.getInputStream(), metadata);
-
-			storageRepository.save(
-					Image
-							.builder()
-							.path(null)
-							.name(null)
-							.extenstion(null)
-							.type(null)
+		Long id = storageRepository.save(
+					Image.builder()
+							.reference(reference)
+							.extenstion(extension)
 							.build()
-			);
-		}
-		return list;
+			).getId();
+		return id;
     }
 
-	public List<String> downloadMember(ImageRequestDto imageRequestDto){
-		// DB 조회후 ID 제공
-		return null;
+	public String downloadMember(SimpleImageRequestDto simpleImageRequestDto){
+		Image image = storageRepository.findById(simpleImageRequestDto.getId()).get();
+		return image.getReference() + "." + image.getExtenstion();
 	}
-	public URL downloadAWS(){
-        System.out.println(amazonS3Client.getUrl(bucket, "ABC"));
-		return amazonS3Client.getUrl(bucket, "ABC");
-    }
+
+	public void delete(SimpleImageRequestDto simpleImageRequestDto){
+		Long id = simpleImageRequestDto.getId();
+		Image image = storageRepository.findById(id).get();
+		String filename = PATH_ROOT + PATH_MEMBER + image.getReference() + "." + image.getExtenstion();
+		storageRepository.deleteById(id);
+		amazonS3Client.deleteObject(bucket, filename);
+	}
 }

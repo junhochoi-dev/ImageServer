@@ -7,6 +7,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import lombok.*;
+import org.joda.time.DateTime;
 
 @Builder
 @NoArgsConstructor
@@ -18,19 +19,13 @@ public class Image {
 	@Id
 	@GeneratedValue
 	private Long id;
-
-	private String path;
-
-	private String name;
-
+	private String reference;
 	private String extenstion;
 
-	private ImageType type;
-
-	public Image(String path, String name, String extenstion, ImageType type) {
-		this.path = path;
-		this.name = name;
+	private DateTime createdTime;
+	// CreatedTime 넣기
+	public Image(String path, String reference, String extenstion) {
+		this.reference = reference;
 		this.extenstion = extenstion;
-		this.type = type;
 	}
 }
