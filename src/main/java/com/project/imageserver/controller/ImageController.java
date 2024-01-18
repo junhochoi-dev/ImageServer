@@ -2,7 +2,10 @@ package com.project.imageserver.controller;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 import java.util.Map;
+
+import com.project.imageserver.data.request.MultiImageRequestDto;
 import com.project.imageserver.data.request.SimpleImageRequestDto;
 import com.project.imageserver.data.response.SimpleImageResponseDto;
 import lombok.extern.slf4j.Slf4j;
@@ -23,27 +26,33 @@ public class ImageController {
     private final ImageService imageService;
 
     @PostMapping("/download/member")
-    public ResponseEntity<?> downloadMember(
-            @RequestParam("id") Long id
-    ) {
-        SimpleImageRequestDto simpleImageRequestDto = SimpleImageRequestDto.builder().id(id).build();
+    public ResponseEntity<?> downloadMember(@RequestBody SimpleImageRequestDto simpleImageRequestDto) {
+        log.info("Download Member API");
         SimpleImageResponseDto simpleImageResponseDto = imageService.downloadMember(simpleImageRequestDto);
-        return ResponseEntity.status(HttpStatus.OK).body(Map.of("sid", simpleImageResponseDto.getReference()));
+        return ResponseEntity.status(HttpStatus.OK).body(simpleImageResponseDto);
     }
 
     @PostMapping("/upload/member")
-    public ResponseEntity<?> uploadMember(
-            @RequestParam("image") MultipartFile file
-    ) throws Exception {
-        SimpleImageRequestDto simpleImageRequestDto = SimpleImageRequestDto.builder().file(file).build();
-        SimpleImageResponseDto simpleImageResponseDto = imageService.uploadMember(simpleImageRequestDto);
-        return ResponseEntity.status(HttpStatus.OK).body(Map.of("sid", simpleImageResponseDto.getId()));
+    public ResponseEntity<?> uploadMember(@RequestPart("image") MultipartFile file) throws Exception {
+        log.info("Upload Member API");
+        return ResponseEntity.status(HttpStatus.OK).body(imageService.uploadMember(file));
+    }
+
+    @PostMapping("/download/feed")
+    public ResponseEntity<?> downloadFeed(@RequestBody MultiImageRequestDto multiImageRequestDto) {
+        log.info("Download Feed API");
+        return null;
+    }
+
+    @PostMapping("/upload/feed")
+    public ResponseEntity<?> uploadFeed(@RequestPart("image") List<MultipartFile> files) throws Exception {
+        log.info("Upload Feed API");
+        return null;
     }
 
     @PostMapping("/delete")
-    public ResponseEntity<?> delete(
-            @RequestParam("id") Long id
-    ) {
+    public ResponseEntity<?> delete(@RequestParam("id") Long id) {
+        log.info("Delete API");
         SimpleImageRequestDto simpleImageRequestDto = SimpleImageRequestDto.builder().id(id).build();
         imageService.delete(simpleImageRequestDto);
         return ResponseEntity.status(HttpStatus.OK).build();

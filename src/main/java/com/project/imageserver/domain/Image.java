@@ -8,6 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import lombok.*;
 import org.joda.time.DateTime;
+import org.springframework.data.annotation.CreatedDate;
 
 @Builder
 @NoArgsConstructor
@@ -15,17 +16,15 @@ import org.joda.time.DateTime;
 @Entity
 @Getter
 @Setter
-public class Image {
-	@Id
-	@GeneratedValue
-	private Long id;
-	private String reference;
-	private String extenstion;
+public class Image extends BaseEntity {
+    @Id
+    @GeneratedValue
+    private Long id;
+    private String reference;
+    private String extenstion;
 
-	private DateTime createdTime;
-	// CreatedTime 넣기
-	public Image(String path, String reference, String extenstion) {
-		this.reference = reference;
-		this.extenstion = extenstion;
-	}
+    public Image(String path, String reference, String extenstion) {
+        this.reference = reference;
+        this.extenstion = extenstion;
+    }
 }

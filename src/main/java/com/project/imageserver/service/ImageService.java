@@ -33,37 +33,37 @@ public class ImageService {
 	private String PATH_MEMBER = "member/";
 	private String PATH_FEED = "feed/";
 
-	public SimpleImageResponseDto uploadMember(SimpleImageRequestDto simpleImageRequestDto) throws Exception {
-		MultipartFile image = simpleImageRequestDto.getFile();
+	public SimpleImageResponseDto uploadMember(MultipartFile multipartFile) throws Exception {
 
 		String reference = UUID.randomUUID().toString();
-		String extension = StringUtils.getFilenameExtension(image.getOriginalFilename());
+		String extension = StringUtils.getFilenameExtension(multipartFile.getOriginalFilename());
 
 		String filepath = PATH_ROOT + PATH_MEMBER + reference + "." + extension;
 
 		ObjectMetadata metadata = new ObjectMetadata();
-		metadata.setContentType(image.getContentType());
-		metadata.setContentLength(image.getSize());
+		metadata.setContentType(multipartFile.getContentType());
+		metadata.setContentLength(multipartFile.getSize());
 
-		amazonS3Client.putObject(bucket, filepath, image.getInputStream(), metadata);
+		amazonS3Client.putObject(bucket, filepath, multipartFile.getInputStream(), metadata);
 
 		Long id = storageRepository.save(
-					Image.builder()
+				Image.builder()
 							.reference(reference)
 							.extenstion(extension)
 							.build()
 			).getId();
+
 		SimpleImageResponseDto simpleImageResponseDto = SimpleImageResponseDto.builder().id(id).build();
+
 		return simpleImageResponseDto;
     }
 	public SimpleImageResponseDto downloadMember(SimpleImageRequestDto simpleImageRequestDto){
-		Image image = storageRepository.findById(simpleImageRequestDto.getId()).get();
-		String reference = image.getReference() + "." + image.getExtenstion();
-		SimpleImageResponseDto simpleImageResponseDto = SimpleImageResponseDto.builder().reference(reference).build();
-		return simpleImageResponseDto;
+		Image image = storageRepository.findById(simpleImageRequestDto.id()).get();
+		String path = image.getReference() + "." + image.getExtenstion();
+		return SimpleImageResponseDto.builder().path(path).build();
 	}
 	public void delete(SimpleImageRequestDto simpleImageRequestDto){
-		Long id = simpleImageRequestDto.getId();
+		Long id = simpleImageRequestDto.id();
 		Image image = storageRepository.findById(id).get();
 		String filename = PATH_ROOT + PATH_MEMBER + image.getReference() + "." + image.getExtenstion();
 		storageRepository.deleteById(id);
