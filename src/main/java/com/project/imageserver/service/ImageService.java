@@ -4,14 +4,11 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 
 import com.project.imageserver.data.request.SimpleImageRequestDto;
-import com.project.imageserver.data.response.ImageResponseDto;
+import com.project.imageserver.data.response.SimpleImageResponseDto;
 import com.project.imageserver.domain.Image;
-import com.project.imageserver.utils.S3Uploader;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.project.imageserver.repository.StorageRepository;
@@ -19,9 +16,6 @@ import com.project.imageserver.repository.StorageRepository;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
 import java.util.*;
 
 @Service
@@ -39,7 +33,7 @@ public class ImageService {
 	private String PATH_MEMBER = "member/";
 	private String PATH_FEED = "feed/";
 
-	public Long uploadMember(SimpleImageRequestDto simpleImageRequestDto) throws Exception {
+	public SimpleImageResponseDto uploadMember(SimpleImageRequestDto simpleImageRequestDto) throws Exception {
 		MultipartFile image = simpleImageRequestDto.getFile();
 
 		String reference = UUID.randomUUID().toString();
@@ -59,14 +53,15 @@ public class ImageService {
 							.extenstion(extension)
 							.build()
 			).getId();
-		return id;
+		SimpleImageResponseDto simpleImageResponseDto = SimpleImageResponseDto.builder().id(id).build();
+		return simpleImageResponseDto;
     }
-
-	public String downloadMember(SimpleImageRequestDto simpleImageRequestDto){
+	public SimpleImageResponseDto downloadMember(SimpleImageRequestDto simpleImageRequestDto){
 		Image image = storageRepository.findById(simpleImageRequestDto.getId()).get();
-		return image.getReference() + "." + image.getExtenstion();
+		String reference = image.getReference() + "." + image.getExtenstion();
+		SimpleImageResponseDto simpleImageResponseDto = SimpleImageResponseDto.builder().reference(reference).build();
+		return simpleImageResponseDto;
 	}
-
 	public void delete(SimpleImageRequestDto simpleImageRequestDto){
 		Long id = simpleImageRequestDto.getId();
 		Image image = storageRepository.findById(id).get();

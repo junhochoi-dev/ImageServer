@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Map;
 import com.project.imageserver.data.request.SimpleImageRequestDto;
+import com.project.imageserver.data.response.SimpleImageResponseDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,10 +27,8 @@ public class ImageController {
             @RequestParam("id") Long id
     ) {
         SimpleImageRequestDto simpleImageRequestDto = SimpleImageRequestDto.builder().id(id).build();
-
-        String reference = imageService.downloadMember(simpleImageRequestDto);
-
-        return ResponseEntity.status(HttpStatus.OK).body(Map.of("sid", reference));
+        SimpleImageResponseDto simpleImageResponseDto = imageService.downloadMember(simpleImageRequestDto);
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("sid", simpleImageResponseDto.getReference()));
     }
 
     @PostMapping("/upload/member")
@@ -37,8 +36,8 @@ public class ImageController {
             @RequestParam("image") MultipartFile file
     ) throws Exception {
         SimpleImageRequestDto simpleImageRequestDto = SimpleImageRequestDto.builder().file(file).build();
-        Long id = imageService.uploadMember(simpleImageRequestDto);
-        return ResponseEntity.status(HttpStatus.OK).body(Map.of("sid", id));
+        SimpleImageResponseDto simpleImageResponseDto = imageService.uploadMember(simpleImageRequestDto);
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("sid", simpleImageResponseDto.getId()));
     }
 
     @PostMapping("/delete")
